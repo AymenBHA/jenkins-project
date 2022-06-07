@@ -2,7 +2,7 @@ def gv
 pipeline {
     agent any
     tools {
-        maven 'Maven'
+        maven 'Maven:3.6.3'
     }
     parameters{
         string(name: 'VERSION', defaultValue: '', description: 'version to deploy on prod')
@@ -12,8 +12,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-    //            sh "mvn install"
-                sh "apt-get update"
+                sh "mvn install"
             }
         }
         stage('Test') {

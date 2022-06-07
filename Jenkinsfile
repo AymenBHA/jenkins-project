@@ -13,7 +13,7 @@ pipeline {
         stage('Build') {
             steps {
     //            sh "mvn install"
-                sh "sudo apt-get update"
+                sh "apt-get update"
             }
         }
         stage('Test') {

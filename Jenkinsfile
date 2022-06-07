@@ -1,35 +1,20 @@
-def gv
 pipeline {
-    agent any
-    tools {
-        maven 'Maven'
+  agent any
+  tools {
+    maven 'maven-3.6.3' 
+  }
+  stages {
+    stage ('Build') {
+      steps {
+        sh 'mvn clean package'
+      }
     }
-    parameters{
-        string(name: 'VERSION', defaultValue: '', description: 'version to deploy on prod')
-        choice(name: 'VERSION', choices: ['1.1.0', '1.2.0', '1.3.0'] , description:'')
-        booleanParam(name: 'executeTests', defaultValue: true, description: '')
+    stage ('Deploy') {
+      steps {
+        script {
+          deploy adapters: [tomcat9(credentialsId: 'tomcat_credential', path: '', url: 'http://dayal-test.letspractice.tk:8081')], contextPath: '/pipeline', onFailure: false, war: 'webapp/target/*.war' 
+        }
+      }
     }
-    stages {
-        stage('Build') {
-            steps {
-                sh "mvn install"
-            }
-        }
-        stage('Test') {
-            when {
-                expression {
-                    params.executeTests
-                }
-            }
-            steps {
-                echo 'Testing..'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
-                echo "deploying version ${params.VERSION}"
-            }
-        }
-    }
+  }
 }

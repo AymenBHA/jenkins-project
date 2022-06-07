@@ -1,34 +1,27 @@
-def gv
 pipeline {
     agent any
     tools {
-        maven 'Maven:3.6.3'
-    }
-    parameters{
-        string(name: 'VERSION', defaultValue: '', description: 'version to deploy on prod')
-        choice(name: 'VERSION', choices: ['1.1.0', '1.2.0', '1.3.0'] , description:'')
-        booleanParam(name: 'executeTests', defaultValue: true, description: '')
+        maven 'Maven 3.3.9'
+        jdk 'jdk8'
     }
     stages {
-        stage('Build') {
+        stage ('Initialize') {
             steps {
-                sh "mvn install"
+                sh '''
+                    echo "PATH = ${PATH}"
+                    echo "M2_HOME = ${M2_HOME}"
+                '''
             }
         }
-        stage('Test') {
-            when {
-                expression {
-                    params.executeTests
+
+        stage ('Build') {
+            steps {
+                sh 'mvn -Dmaven.test.failure.ignore=true install' 
+            }
+            post {
+                success {
+                    junit 'target/surefire-reports/**/*.xml' 
                 }
-            }
-            steps {
-                echo 'Testing..'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
-                echo "deploying version ${params.VERSION}"
             }
         }
     }
